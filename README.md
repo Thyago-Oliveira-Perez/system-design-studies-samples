@@ -57,7 +57,7 @@ With mise installed, run this once in the repo and you get the exact Go version 
 
 ```bash
 mise install      # downloads Go 1.26.2 if you don't have it
-mise exec -- go run ./exemplos/load-balancing/algoritmos/round-robin
+mise exec -- go run ./samples/load-balancing/algoritmos/round-robin
 ```
 
 If mise's shell hook is set up, `cd`-ing into the repo activates the pinned toolchain and plain `go` commands just work. Don't have mise? Any [Go](https://go.dev/dl/) **1.22+** install runs the samples fine — `mise.toml` is only there to make the version reproducible.
@@ -68,14 +68,14 @@ Every standalone example lives in its own directory as `package main` under a si
 
 ```bash
 # from the repo root
-go run ./exemplos/concurrency-parallelism/concurrency
-go run ./exemplos/load-balancing/algoritmos/round-robin
+go run ./samples/concurrency-parallelism/concurrency
+go run ./samples/load-balancing/algoritmos/round-robin
 ```
 
 The `cache/cdn` sample starts an HTTP server:
 
 ```bash
-go run ./exemplos/cache/cdn
+go run ./samples/cache/cdn
 # then, in another terminal:
 curl localhost:8080/        # first hit  -> "Cache miss" (fetched from origin)
 curl localhost:8080/        # second hit -> "Cache hit"  (served from disk)
