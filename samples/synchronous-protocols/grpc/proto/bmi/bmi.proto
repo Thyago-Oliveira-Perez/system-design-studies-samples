@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bmi;
+
+// Where the generated Go code lives: import path ;package name.
+option go_package = "grpc-bmi/gen/bmi;bmi";
+
+// BMIService computes a Body Mass Index from a weight and height.
+// In gRPC the .proto file is the single source of truth — server and client
+// are both generated from it, so they can never drift out of sync.
+service BMIService {
+  // Calculate returns the BMI and a category for the given measurements.
+  rpc Calculate(BMIRequest) returns (BMIResponse);
+}
+
+// Strongly typed request message. Field numbers (= 1, = 2) are the wire
+// identifiers protobuf uses instead of field names — keep them stable.
+message BMIRequest {
+  double weight_kg = 1;
+  double height_m = 2;
+}
+
+message BMIResponse {
+  double bmi = 1;
+  string category = 2; // underweight | normal | overweight | obese
+}

@@ -1,0 +1,10 @@
+version: v2
+plugins:
+  # Generates the message types (bmi.pb.go).
+  - local: protoc-gen-go
+    out: gen
+    opt: paths=source_relative
+  # Generates the service client/server stubs (bmi_grpc.pb.go).
+  - local: protoc-gen-go-grpc
+    out: gen
+    opt: paths=source_relative

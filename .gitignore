@@ -1,0 +1,11 @@
+# Compiled binary accidentally produced by `go build` in the graphql main dir
+# (named after its module). Other samples keep main in server/ or client/
+# subdirs, so `go build ./...` there doesn't emit a stray binary.
+/samples/synchronous-protocols/graphql/graphql-books
+*.exe
+
+# Runtime data written by samples
+/samples/cache/cdn/cache/
+
+# Editor / OS noise
+.DS_Store
