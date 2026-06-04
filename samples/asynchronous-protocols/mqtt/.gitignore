@@ -1,0 +1,4 @@
+# Compiled binaries (if you `go build` instead of `go run`)
+/publisher
+/subscriber
+*.exe

@@ -38,7 +38,15 @@ samples/
 │   ├── websockets/         # full-duplex real-time connection (nested module)
 │   └── graphql/            # client picks exactly the fields it needs (nested module)
 └── asynchronous-protocols/
-    └── kafka/              # parallel consumption via a Kafka consumer group
+    ├── messaging-concepts/     # building blocks (stdlib, one concept each)
+    │   ├── queue/              # FIFO — first in, first out
+    │   ├── stack/              # LIFO — last in, first out
+    │   ├── fanout/             # 1:N — copy one message to every queue
+    │   ├── dead-letter-queue/  # park poison messages after N retries
+    │   └── batch-processing/   # flush on a size or time trigger
+    ├── kafka/                  # parallel consumption via a Kafka consumer group (nested module)
+    ├── rabbitmq/               # AMQP exchange routing: direct / topic / fanout (nested module)
+    └── mqtt/                   # IoT pub/sub: default vs shared subscriptions   (nested module)
 ```
 
 ## Topics & matching course lessons
@@ -90,7 +98,7 @@ curl localhost:8080/        # first hit  -> "Cache miss" (fetched from origin)
 curl localhost:8080/        # second hit -> "Cache hit"  (served from disk)
 ```
 
-A few samples that need third-party libraries are **nested modules** with their own `go.mod` (`synchronous-protocols/grpc`, `synchronous-protocols/websockets`, `synchronous-protocols/graphql`, and `asynchronous-protocols/kafka`). For those, `cd` into the folder first and run the commands in its README. The gRPC sample needs **Go 1.25+** (a transitive gRPC dependency requires it); everything else runs on Go 1.22+.
+A few samples that need third-party libraries are **nested modules** with their own `go.mod` (`synchronous-protocols/grpc`, `synchronous-protocols/websockets`, `synchronous-protocols/graphql`, and the broker demos `asynchronous-protocols/kafka`, `asynchronous-protocols/rabbitmq`, `asynchronous-protocols/mqtt`). For those, `cd` into the folder first and run the commands in its README. The gRPC sample needs **Go 1.25+** (a transitive gRPC dependency requires it) and the MQTT sample needs **Go 1.24+**; everything else runs on Go 1.22+.
 
 ---
 
@@ -136,9 +144,25 @@ Ways for a client to talk to a server and (usually) wait for the answer. See the
 | `websockets` | One long-lived, full-duplex connection; either side can send anytime (chat + server push). *(nested module)* |
 | `graphql` | One endpoint where the **client** picks exactly which fields come back — no over/under-fetching. *(nested module)* |
 
-### Async Protocols — Kafka (`samples/asynchronous-protocols/kafka/`)
+### Async Protocols (`samples/asynchronous-protocols/`)
 
-A producer publishes image-processing jobs to a 3-partition topic; consumers in a group split the partitions and process jobs in parallel. Scaling the consumer demonstrates how a Kafka consumer group provides parallelism across instances. Runs via `docker compose` — see the folder's own README.
+Producers and consumers decoupled in time, handing work off through an intermediary. See the [folder README](samples/asynchronous-protocols/README.md) for run instructions.
+
+**Messaging concepts** (`messaging-concepts/`) — the building blocks, each a tiny stdlib program. A queue is a *data structure* before it is ever a technology:
+
+| Sample | Idea in one line |
+|---|---|
+| `queue` | **FIFO** — items are consumed in the order they were produced (enqueue/dequeue). |
+| `stack` | **LIFO** — the newest item is served first (push/pop); the opposite ordering. |
+| `fanout` | **1:N** — one production is copied to *every* bound queue; consumers don't compete for it. |
+| `dead-letter-queue` | After N failed retries a "poison" message is moved aside so the main queue keeps flowing. |
+| `batch-processing` | Accumulate messages, then flush the batch on a **size** or **time** trigger (throughput over latency). |
+
+**Brokers** — end-to-end demos against a real broker, each a nested module run with `docker compose` (see each folder's README):
+
+- **Kafka** (`kafka/`) — a producer publishes image-processing jobs to a 3-partition topic; consumers in a group split the partitions and process jobs in parallel. Scaling the consumer shows how a consumer group provides parallelism across instances.
+- **RabbitMQ** (`rabbitmq/`) — three self-contained demos of AMQP exchange routing: `direct` (exact routing key), `topic` (wildcard patterns), and `fanout` (broadcast to every bound queue).
+- **MQTT** (`mqtt/`) — lightweight IoT pub/sub. Scaling the subscriber shows the difference between a **default** subscription (every instance gets every message) and a **shared** subscription (the broker load-balances messages across the group). *(needs Go 1.24+)*
 
 ---
 

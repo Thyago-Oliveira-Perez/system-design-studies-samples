@@ -1,0 +1,5 @@
+# Compiled demo binaries (if you `go build` instead of `go run`)
+/direct/direct
+/topic/topic
+/fanout/fanout
+*.exe

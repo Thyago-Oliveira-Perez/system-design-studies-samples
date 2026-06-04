@@ -1,0 +1,42 @@
+services:
+
+  # ── Mosquitto MQTT broker ────────────────────────────────────────────────
+  # Listens on 1883 (MQTT over TCP). Supports $share/<group>/<topic> shared
+  # subscriptions, which the subscriber uses in "shared" mode.
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # ── Publisher — emits one telemetry reading per second ───────────────────
+  publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BINARY: publisher
+    environment:
+      MQTT_BROKER: tcp://mosquitto:1883
+    depends_on:
+      - mosquitto
+
+  # ── Subscriber — scale it to see the two subscription styles ─────────────
+  #
+  #   default subscription (each instance gets every message):
+  #     docker compose up --build --scale subscriber=3
+  #
+  #   shared subscription (instances split the messages, ~1/3 each):
+  #     SUBSCRIPTION=shared docker compose up --build --scale subscriber=3
+  subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BINARY: subscriber
+    environment:
+      MQTT_BROKER: tcp://mosquitto:1883
+      SUBSCRIPTION: ${SUBSCRIPTION:-default}
+    depends_on:
+      - mosquitto
